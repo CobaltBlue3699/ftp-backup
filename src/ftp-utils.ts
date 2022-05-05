@@ -31,7 +31,7 @@ export class SFTPUtils {
 		password: string,
 	): Promise<SFTPUtils> {
 		const sftpInstance = new sftp();
-		const spinner = ora(`connecting ...`).start()
+		const spinner = ora(`connecting ...`).start();
 		await sftpInstance.connect({
 			host,
 			port,
@@ -53,21 +53,21 @@ export class SFTPUtils {
 
 	/**
 	 * mkdir
-	 * @param remote 
+	 * @param remote
 	 * @returns remote path
 	 */
 	async mkdir(remote: string): Promise<string> {
-		return await this.#client.mkdir(remote, true)
+		return await this.#client.mkdir(remote, true);
 	}
 
 	/**
 	 * upload entire folder to remote
-	 * @param source 
-	 * @param remote 
-	 * @returns 
+	 * @param source
+	 * @param remote
+	 * @returns
 	 */
 	async uploadDir(source: string, remote: string): Promise<string> {
-		return await this.#client.uploadDir(source, remote)
+		return await this.#client.uploadDir(source, remote);
 	}
 
 	/**

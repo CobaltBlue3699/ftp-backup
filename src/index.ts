@@ -40,7 +40,8 @@ import * as path from 'path';
 		isString('source', source);
 
 		const sftp = await SFTPUtils.build(host, port, user, password);
-		if (!await sftp.exists(remote)) { // if remote folder is not exist, then create it.
+		if (!(await sftp.exists(remote))) {
+			// if remote folder is not exist, then create it.
 			await sftp.mkdir(remote);
 		}
 		await sftp.uploadDir(source, remote);
