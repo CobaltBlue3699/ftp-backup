@@ -2,14 +2,13 @@ import sftp from 'ssh2-sftp-client';
 import ora, { Ora } from 'ora';
 export class SFTPUtils {
 	#client: sftp;
-	#spinner: Ora;
+	#spinner: Ora = ora();
 
-	constructor(client: sftp, spinner: Ora) {
+	constructor(client: sftp) {
 		if (typeof client === 'undefined') {
 			throw new Error('Cannot be called directly');
 		}
 		this.#client = client;
-		this.#spinner = spinner;
 		this.#client.on('error', (err) => {
 			this.#client.end();
 			this.#spinner.stop();
@@ -31,14 +30,14 @@ export class SFTPUtils {
 		password: string,
 	): Promise<SFTPUtils> {
 		const sftpInstance = new sftp();
-		const spinner = ora(`connecting ...`).start();
-		await sftpInstance.connect({
+		const utils = new SFTPUtils(sftpInstance);
+		await utils.involk(`connect sftp`, async () => await sftpInstance.connect({
 			host,
 			port,
 			username,
 			password,
-		});
-		return new SFTPUtils(sftpInstance, spinner);
+		}))
+		return utils;
 	}
 
 	/**
@@ -57,7 +56,7 @@ export class SFTPUtils {
 	 * @returns remote path
 	 */
 	async mkdir(remote: string): Promise<string> {
-		return await this.#client.mkdir(remote, true);
+		return this.involk(`mkdir ${remote}`, async () => await this.#client.mkdir(remote, true))
 	}
 
 	/**
@@ -67,7 +66,7 @@ export class SFTPUtils {
 	 * @returns
 	 */
 	async uploadDir(source: string, remote: string): Promise<string> {
-		return await this.#client.uploadDir(source, remote);
+		return this.involk(`uploading ${source} to remote ${remote}`, async () => await this.#client.uploadDir(source, remote))
 	}
 
 	/**
@@ -99,6 +98,27 @@ export class SFTPUtils {
 	 * l : symbolic link
 	 */
 	async exists(path: string): Promise<false | 'd' | 'l' | '-'> {
-		return await this.#client.exists(path);
+		return this.involk(`check if ${path} is existed`, async () => await this.#client.exists(path))
+	}
+
+	async disconnect(): Promise<void> {
+		return this.involk(`disconnect`, async () => await this.#client.end())
+	}
+
+	async involk<T>(action: string, func: () => Promise<T | any>) {
+		this.#spinner.text = `start ${action}`;
+		if (!this.#spinner.isSpinning) {
+			this.#spinner.start();
+		}
+		try {
+			const result = await func();
+			this.#spinner.succeed(`succeed ${action}`)
+			return result;
+		} catch (err: any) {
+			this.#spinner.fail(`failed to ${action},  ${err.message}`)
+			return new Promise((resolve, reject) => {
+				reject(err)
+			})
+		}
 	}
 }

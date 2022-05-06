@@ -45,8 +45,6 @@ import * as path from 'path';
 			await sftp.mkdir(remote);
 		}
 		await sftp.uploadDir(source, remote);
-		// const dirs = await sftp.list(remote)
-
-		// console.log(dirs);
+		await sftp.disconnect();
 	}
 })(minimist(process.argv.slice(2)));
