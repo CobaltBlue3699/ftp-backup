@@ -31,12 +31,16 @@ export class SFTPUtils {
 	): Promise<SFTPUtils> {
 		const sftpInstance = new sftp();
 		const utils = new SFTPUtils(sftpInstance);
-		await utils.involk(`connect sftp`, async () => await sftpInstance.connect({
-			host,
-			port,
-			username,
-			password,
-		}))
+		await utils.involk(
+			`connect sftp`,
+			async () =>
+				await sftpInstance.connect({
+					host,
+					port,
+					username,
+					password,
+				}),
+		);
 		return utils;
 	}
 
@@ -56,7 +60,7 @@ export class SFTPUtils {
 	 * @returns remote path
 	 */
 	async mkdir(remote: string): Promise<string> {
-		return this.involk(`mkdir ${remote}`, async () => await this.#client.mkdir(remote, true))
+		return this.involk(`mkdir ${remote}`, async () => await this.#client.mkdir(remote, true));
 	}
 
 	/**
@@ -66,7 +70,10 @@ export class SFTPUtils {
 	 * @returns
 	 */
 	async uploadDir(source: string, remote: string): Promise<string> {
-		return this.involk(`uploading ${source} to remote ${remote}`, async () => await this.#client.uploadDir(source, remote))
+		return this.involk(
+			`uploading ${source} to remote ${remote}`,
+			async () => await this.#client.uploadDir(source, remote),
+		);
 	}
 
 	/**
@@ -84,8 +91,8 @@ export class SFTPUtils {
 	 * @param remote
 	 * @returns Promise<sftp.FileInfo[]>
 	 */
-	async getFolders(remote: string): Promise<sftp.FileInfo[]> {
-		const dir = await this.list(remote);
+	async getFolders(remote: string, pattern?: string | RegExp): Promise<sftp.FileInfo[]> {
+		const dir = await this.list(remote, pattern);
 		return dir.filter((tmp) => tmp.type === 'd');
 	}
 
@@ -98,11 +105,20 @@ export class SFTPUtils {
 	 * l : symbolic link
 	 */
 	async exists(path: string): Promise<false | 'd' | 'l' | '-'> {
-		return this.involk(`check if ${path} is existed`, async () => await this.#client.exists(path))
+		return this.involk(`check if ${path} is existed`, async () => await this.#client.exists(path));
+	}
+
+	/**
+	 * remove folder
+	 * @param {string} remote 
+	 * @returns 
+	 */
+	async rmdir(remote: string): Promise<string> {
+		return this.involk(`remove remote ${remote}`, async () => await this.#client.rmdir(remote, true))
 	}
 
 	async disconnect(): Promise<void> {
-		return this.involk(`disconnect`, async () => await this.#client.end())
+		return this.involk(`disconnect`, async () => await this.#client.end());
 	}
 
 	async involk<T>(action: string, func: () => Promise<T | any>) {
@@ -112,13 +128,13 @@ export class SFTPUtils {
 		}
 		try {
 			const result = await func();
-			this.#spinner.succeed(`succeed ${action}`)
+			this.#spinner.succeed(`succeed ${action}`);
 			return result;
 		} catch (err: any) {
-			this.#spinner.fail(`failed to ${action},  ${err.message}`)
+			this.#spinner.fail(`failed to ${action},  ${err.message}`);
 			return new Promise((resolve, reject) => {
-				reject(err)
-			})
+				reject(err);
+			});
 		}
 	}
 }
