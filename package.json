@@ -1,6 +1,6 @@
 {
   "name": "ftp-backup",
-  "version": "1.0.5-0",
+  "version": "1.0.5",
   "description": "A tool to backup your Documents, Pictures, and folders. Based on npm ssh2-sftp-client package.",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",

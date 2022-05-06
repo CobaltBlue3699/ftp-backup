@@ -48,10 +48,12 @@ import * as path from 'path';
 		const folderName = folders[folders.length - 1];
 
 		// chech retain instance
-		const remoteFolders = (await sftp.getFolders(remote, new RegExp(`^${folderName}`))).sort((a, b) => a.modifyTime - b.modifyTime);
-		while(remoteFolders.length > retain - 1 && remoteFolders.length > 0) {
+		const remoteFolders = (await sftp.getFolders(remote, new RegExp(`^${folderName}`))).sort(
+			(a, b) => a.modifyTime - b.modifyTime,
+		);
+		while (remoteFolders.length > retain - 1 && remoteFolders.length > 0) {
 			const [removeFolder] = remoteFolders.splice(0, 1);
-			await sftp.rmdir(`${remote}/${removeFolder.name}`)
+			await sftp.rmdir(`${remote}/${removeFolder.name}`);
 		}
 		// backup new instance
 		const date = new Date();

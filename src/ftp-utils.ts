@@ -110,11 +110,14 @@ export class SFTPUtils {
 
 	/**
 	 * remove folder
-	 * @param {string} remote 
-	 * @returns 
+	 * @param {string} remote
+	 * @returns
 	 */
 	async rmdir(remote: string): Promise<string> {
-		return this.involk(`remove remote ${remote}`, async () => await this.#client.rmdir(remote, true))
+		return this.involk(
+			`remove remote ${remote}`,
+			async () => await this.#client.rmdir(remote, true),
+		);
 	}
 
 	async disconnect(): Promise<void> {
