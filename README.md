@@ -1,6 +1,6 @@
 # ftp-backup
 
-A tool to back up your Documents, Pictures, and folders.  
+A tool to backup your Documents, Pictures, and folders.  
 Based on npm [ssh2-sftp-client package](https://www.npmjs.com/package/ssh2-sftp-client)
 
 ## Install
